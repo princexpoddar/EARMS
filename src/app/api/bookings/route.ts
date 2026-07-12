@@ -45,6 +45,11 @@ export async function POST(req: NextRequest) {
     const requestedStart = new Date(startDate);
     const requestedEnd = new Date(endDate);
 
+    // Guard against malformed date strings
+    if (isNaN(requestedStart.getTime()) || isNaN(requestedEnd.getTime())) {
+      return NextResponse.json({ error: "Invalid date format provided" }, { status: 400 });
+    }
+
     // Business rule: End date must be after start date
     if (requestedEnd <= requestedStart) {
       return NextResponse.json({ error: "End date must be after start date" }, { status: 400 });
