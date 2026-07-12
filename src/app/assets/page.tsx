@@ -102,6 +102,118 @@ export default function AssetsPage() {
     }
   };
 
+  // Download Asset Label PDF
+  const downloadAssetLabelPdf = async (asset: Asset) => {
+    showToast(`Generating PDF label for ${asset.tag}...`, "success");
+    try {
+      const { jsPDF } = await import("jspdf");
+      const QRCode = await import("qrcode");
+
+      // Generate scan URL
+      const scanUrl = `${window.location.origin}/scan?tag=${asset.tag}`;
+
+      // Generate QR Code Data URL
+      const qrDataUrl = await QRCode.toDataURL(scanUrl, {
+        margin: 1,
+        width: 200,
+        color: {
+          dark: "#000000",
+          light: "#ffffff",
+      },
+      });
+
+      // Create PDF (80mm x 50mm)
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: [80, 50],
+      });
+
+      // --- Header Bar ---
+      // Dark grey background
+      doc.setFillColor(20, 20, 23);
+      doc.rect(0, 0, 80, 8, "F");
+
+      // Title text
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("ASSETFLOW ERP", 4, 5.5);
+
+      // Muted brand slogan on the right of the header
+      doc.setTextColor(180, 180, 180);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6);
+      doc.text("SECURE HARDWARE TAG", 50, 5.2);
+
+      // --- Body Grid ---
+
+      // Left Column Info (start at x=4, y=14)
+      // 1. Asset Tag Pill background
+      doc.setFillColor(240, 240, 243);
+      doc.rect(4, 11, 38, 7, "F");
+
+      // Asset Tag text inside the pill
+      doc.setTextColor(20, 20, 23);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(asset.tag, 6, 16);
+
+      // 2. Asset Name
+      doc.setTextColor(40, 40, 45);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      // Wrap name if it exceeds 38mm
+      const nameLines = doc.splitTextToSize(asset.name, 38);
+      doc.text(nameLines, 4, 22);
+
+      // 3. Category & Serial S/N & details
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      doc.setTextColor(80, 80, 85);
+      
+      let yPos = 29;
+      doc.text(`Category: ${asset.category?.name || "N/A"}`, 4, yPos);
+      yPos += 3.5;
+      doc.text(`S/N: ${asset.serialNumber || "N/A"}`, 4, yPos);
+      yPos += 3.5;
+      const costText = asset.cost > 0 ? `INR ${asset.cost.toLocaleString()}` : "N/A";
+      doc.text(`Cost: ${costText}`, 4, yPos);
+      yPos += 3.5;
+      const dateText = new Date(asset.purchaseDate).toLocaleDateString();
+      doc.text(`Acquired: ${dateText}`, 4, yPos);
+
+      // Right Column QR Code
+      // Place QR code image at x=46, y=10
+      doc.addImage(qrDataUrl, "PNG", 46, 10, 30, 30);
+      
+      // QR Helper Text
+      doc.setTextColor(120, 120, 125);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6);
+      doc.text("SCAN TO VERIFY", 53, 41.5);
+
+      // --- Footer Bar ---
+      // Fine divider line
+      doc.setDrawColor(220, 220, 225);
+      doc.setLineWidth(0.2);
+      doc.line(4, 44, 76, 44);
+
+      // Footer Slogan
+      doc.setTextColor(150, 150, 155);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(5);
+      doc.text("PROPERTY OF ASSETFLOW ERP • DO NOT REMOVE OR TAMPER", 16, 47.5);
+
+      // Save/Download PDF named by Asset Tag
+      doc.save(`Asset_Label_${asset.tag}.pdf`);
+      showToast(`PDF label for ${asset.tag} downloaded!`, "success");
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      showToast("Failed to generate PDF label. Please try again.", "error");
+    }
+  };
+
   // 2. Fetch Categories
   const fetchCategories = async () => {
     try {
@@ -429,7 +541,7 @@ export default function AssetsPage() {
                   <QrCode className="h-24 w-24 text-zinc-950" />
                 </div>
                 <button
-                  onClick={() => alert(`Label printed for ${selectedAsset.tag}`)}
+                  onClick={() => downloadAssetLabelPdf(selectedAsset)}
                   className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-primary bg-secondary border border-border px-3 py-1.5 rounded hover:bg-muted transition"
                 >
                   <Printer className="h-3.5 w-3.5" />

@@ -158,6 +158,17 @@ export default function ScanPage() {
     }
   };
 
+  // Check for auto-scan query parameter
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tagParam = params.get("tag");
+      if (tagParam) {
+        handleScanSuccess(tagParam);
+      }
+    }
+  }, []);
+
   // Action: Return Asset
   const handleReturnAsset = async () => {
     if (!scannedAsset) return;
