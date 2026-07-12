@@ -91,30 +91,18 @@ export default function ReportsPage() {
         // Isometric core 3D cube (Asset representation)
         // Top Face (Indigo)
         pdfDoc.setFillColor(79, 70, 229);
-        pdfDoc.polygon([
-          [x, y - 2.8],
-          [x + 3.8, y - 0.9],
-          [x, y + 1],
-          [x - 3.8, y - 0.9]
-        ], "F");
+        pdfDoc.triangle(x, y - 2.8, x + 3.8, y - 0.9, x, y + 1, "F");
+        pdfDoc.triangle(x, y - 2.8, x, y + 1, x - 3.8, y - 0.9, "F");
         
         // Left Face (Darker Indigo)
         pdfDoc.setFillColor(55, 48, 163);
-        pdfDoc.polygon([
-          [x - 3.8, y - 0.9],
-          [x, y + 1],
-          [x, y + 4.8],
-          [x - 3.8, y + 2.9]
-        ], "F");
+        pdfDoc.triangle(x - 3.8, y - 0.9, x, y + 1, x, y + 4.8, "F");
+        pdfDoc.triangle(x - 3.8, y - 0.9, x, y + 4.8, x - 3.8, y + 2.9, "F");
 
         // Right Face (Teal/Emerald)
         pdfDoc.setFillColor(16, 185, 129);
-        pdfDoc.polygon([
-          [x, y + 1],
-          [x + 3.8, y - 0.9],
-          [x + 3.8, y + 2.9],
-          [x, y + 4.8]
-        ], "F");
+        pdfDoc.triangle(x, y + 1, x + 3.8, y - 0.9, x + 3.8, y + 2.9, "F");
+        pdfDoc.triangle(x, y + 1, x + 3.8, y + 2.9, x, y + 4.8, "F");
 
         // Overlay Ribbon Accent (White)
         pdfDoc.setDrawColor(255, 255, 255);
