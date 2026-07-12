@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useApp } from "@/context/AppContext";
+import Logo from "@/components/Logo";
 import { User, Lock, Mail, Building, ArrowRight, ArrowLeft } from "lucide-react";
 
 interface Department {
@@ -91,8 +92,8 @@ export default function SignupPage() {
 
       <div className="w-full max-w-md z-10 space-y-6">
         <div className="text-center">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 text-zinc-950 font-black text-xl tracking-wider shadow-lg mb-4">
-            AF
+          <div className="inline-flex items-center justify-center mb-4">
+            <Logo size={48} />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
           <p className="text-xs text-zinc-400 mt-1.5">

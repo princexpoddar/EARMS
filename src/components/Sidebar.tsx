@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Logo from "./Logo";
+
 import { useApp } from "@/context/AppContext";
 import {
   LayoutDashboard,
@@ -89,9 +91,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
     <div className="flex h-full flex-col border-r border-border bg-card text-card-foreground">
       {/* Logo Area */}
       <div className="flex h-16 items-center px-6 gap-2 border-b border-border">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black tracking-wider shadow-md">
-          AF
-        </div>
+        <Logo size={36} />
         <div className="flex flex-col">
           <span className="font-bold text-base leading-none tracking-tight">AssetFlow</span>
           <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mt-0.5">Enterprise ERP</span>

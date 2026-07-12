@@ -37,9 +37,10 @@ export async function POST(
     }
 
     // Determine final status of the asset
-    // If it has an assigned custodian, mark it back as ALLOCATED.
-    // If it has no custodian, mark it as AVAILABLE.
-    const nextAssetStatus = ticket.asset.currentUserId ? "ALLOCATED" : "AVAILABLE";
+    // If it has been retired, keep it retired. Otherwise determine based on custodian.
+    const nextAssetStatus = ticket.asset.status === "RETIRED"
+      ? "RETIRED"
+      : (ticket.asset.currentUserId ? "ALLOCATED" : "AVAILABLE");
 
     // Update Asset status
     await prisma.asset.update({

@@ -38,13 +38,22 @@ export async function POST(
       return NextResponse.json({ error: `Request has already been processed. Status: ${transfer.status}` }, { status: 400 });
     }
 
+    // Business rule: Cannot approve transfer for retired assets
+    if (transfer.asset.status === "RETIRED") {
+      return NextResponse.json({ error: "Cannot approve transfer: The asset has been retired." }, { status: 400 });
+    }
+
+    // Determine target status of the asset
+    // If the asset is currently in MAINTENANCE, preserve its status instead of changing to ALLOCATED.
+    const targetStatus = transfer.asset.status === "MAINTENANCE" ? "MAINTENANCE" : "ALLOCATED";
+
     // Update the Asset custodian and department
     await prisma.asset.update({
       where: { id: transfer.assetId },
       data: {
         currentUserId: transfer.receiverId,
         departmentId: transfer.receiver.departmentId,
-        status: "ALLOCATED", // ensure it is allocated
+        status: targetStatus,
       },
     });
 

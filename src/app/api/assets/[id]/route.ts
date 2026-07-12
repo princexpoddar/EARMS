@@ -138,9 +138,44 @@ export async function DELETE(
     // For a robust implementation, let's delete the asset. But wait, if it has bookings/maintenance related to it,
     // deleting it straight will throw SQL foreign key error. So let's delete related bookings/maintenance first, or soft delete!
     // Soft deleting (setting status to RETIRED) is highly recommended for ERP audit logs! Let's do that!
+    
+    // 1. Cancel future bookings for the retired asset
+    await prisma.booking.updateMany({
+      where: {
+        assetId: id,
+        status: { in: ["PENDING", "APPROVED"] },
+      },
+      data: { status: "REJECTED" },
+    });
+
+    // 2. Reject pending transfer requests for the retired asset
+    await prisma.transferRequest.updateMany({
+      where: {
+        assetId: id,
+        status: "PENDING",
+      },
+      data: { status: "REJECTED" },
+    });
+
+    // 3. Resolve/Close open maintenance tickets for the retired asset
+    await prisma.maintenance.updateMany({
+      where: {
+        assetId: id,
+        status: { in: ["PENDING", "APPROVED", "IN_PROGRESS"] },
+      },
+      data: {
+        status: "RESOLVED",
+        comments: "Closed automatically because the asset was retired.",
+        completedDate: new Date(),
+      },
+    });
+
     const retiredAsset = await prisma.asset.update({
       where: { id },
-      data: { status: "RETIRED" },
+      data: { 
+        status: "RETIRED",
+        currentUserId: null, // clear custodian upon retirement
+      },
     });
 
     // Log the deletion
