@@ -4,6 +4,38 @@ AssetFlow is a polished, production-ready full-stack Enterprise Resource Plannin
 
 ---
 
+## 🚀 Recent Enhancements
+
+### 🎨 Coded Brand Identity (SVG & CSS Animations)
+- **Modern Animated Logo** — Replaced the static text boxes with a premium, self-contained SVG logo component (`Logo.tsx`) featuring:
+  - An outer rotating dashed hexagon representing system flow and diagnostics.
+  - A 3D isometric core cube representing asset inventory.
+  - A glowing horizontal overlay ribbon with custom CSS keyframes.
+  - Integrated across the sidebar navigation, login page, and signup page.
+
+### 📄 Publication-Quality Executive PDF Reports
+- Overhauled the **AI Weekly Reports** generator into a high-fidelity, A4 corporate briefing document featuring:
+  - **Vector Logo Header**: Renders the brand logo at the top right using `jsPDF` vector primitives.
+  - **KPI Scorecard Grid**: A 2x2 grid of styled scorecard boxes for key metrics (Fleet Utilization, Active Deployments, Maintenance Upkeep, Room Bookings) with soft backgrounds, borders, and large bold values.
+  - **Structured Data Tables**: Organizes department allocation statistics into structured tables instead of plain text bullets.
+  - **Stylized Callout Boxes**: Highlights the "AI Diagnostics Summary" sections inside clean, well-padded accent boxes with left vertical borders.
+  - **Status Progress Bars**: Displays the visual distribution of assets (Available, Allocated, Maintenance, Retired) using proportional colored progress bars.
+  - **Recommendation Panels**: Renders recommendations inside distinct cards with colored left border indicators (Amber, Indigo, Emerald).
+  - **Executive Page Formatting**: Incorporates page numbering ("Page X of Y"), thin top header lines, and a confidentiality footer.
+
+### 🛡️ Enterprise-Grade State Validation & Bug Fixes
+- **Cascading Asset Retirement**: Retiring an asset (status `RETIRED`) now triggers an automated cascading database cleanup to prevent database inconsistencies:
+  - Rejects/cancels all future pending or approved bookings for the retired asset.
+  - Rejects any pending custodian transfer requests involving the asset.
+  - Automatically closes and resolves any open maintenance tickets for the asset.
+- **Transfer Approval Safeguards**:
+  - Prevents approving custodian transfers for retired assets.
+  - Automatically preserves the `MAINTENANCE` status of assets currently in repair (updates custodian details without forcing the status back to `ALLOCATED`).
+- **Resurrection Prevention**:
+  - Prevents resolving maintenance tickets from resurrecting retired assets back to `ALLOCATED` or `AVAILABLE` status.
+
+---
+
 ## Features
 
 ### Core ERP Modules
@@ -35,7 +67,7 @@ AssetFlow is a polished, production-ready full-stack Enterprise Resource Plannin
 |---|---|
 | **Framework** | Next.js 16 (App Router, TypeScript) |
 | **Styling** | Tailwind CSS v4 |
-| **Database** | SQLite (via `@prisma/adapter-better-sqlite3`) |
+| **Database** | SQLite / PostgreSQL (via Prisma Adapter) |
 | **ORM** | Prisma 7 |
 | **Auth** | Custom JWT with HTTP-only cookies |
 | **Charts** | Recharts |
@@ -56,7 +88,7 @@ npm install --legacy-peer-deps
 ### 2. Set up environment variables
 Create or edit the `.env` file in the root directory:
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://neondb_owner:npg_d5gV4Anchvry@ep-bold-base-atlme0zr.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Optional: Enables Gemini-powered AI responses
 # Get your key at: https://aistudio.google.com/apikey
@@ -92,7 +124,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ```
 ├── prisma/
-│   ├── dev.db               # SQLite database (gitignored)
 │   ├── schema.prisma        # Relational schema
 │   └── seed.ts              # Demo data seeder
 ├── src/
@@ -120,6 +151,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 │   │   ├── scan/            # QR Code Scanner page
 │   │   └── signup/          # Employee registration
 │   ├── components/
+│   │   ├── Logo.tsx         # Animated premium SVG brand logo
 │   │   ├── AiCopilot.tsx    # Floating AI chat assistant widget
 │   │   ├── ClientLayout.tsx # Root layout scaffolding
 │   │   ├── CommandPalette.tsx
@@ -131,7 +163,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 │   │   └── DemoContext.tsx  # Demo Mode automation state
 │   ├── lib/
 │   │   ├── auth.ts          # JWT signing & verification
-│   │   └── prisma.ts        # Prisma client with SQLite adapter
+│   │   └── prisma.ts        # Prisma client with PostgreSQL adapter
 │   └── middleware.ts        # Route protection proxy
 └── package.json
 ```
