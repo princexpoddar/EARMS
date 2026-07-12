@@ -141,7 +141,7 @@ Do not include any other markdown wrapper or comments. Just the raw JSON string.
             markdownResponse = "No laptops are currently allocated to the HR department.";
           } else {
             markdownResponse = `### Laptops allocated to HR Department\n\n| Asset Name | Tag | Status | Custodian | Location |\n| :--- | :--- | :---: | :--- | :--- |\n` +
-              assets.map((a) => `| ${a.name} | **${a.tag}** | \`${a.status}\` | ${a.currentUser?.name || "Shared"} | ${a.location} |`).join("\n");
+              assets.map((a: any) => `| ${a.name} | **${a.tag}** | \`${a.status}\` | ${a.currentUser?.name || "Shared"} | ${a.location} |`).join("\n");
           }
         } else {
           markdownResponse = "HR department record not found in the database.";
@@ -201,7 +201,7 @@ Do not include any other markdown wrapper or comments. Just the raw JSON string.
           markdownResponse = "✅ No overdue resource reservations or overdue allocations detected.";
         } else {
           markdownResponse = `### Overdue Reservations & Allocations\n\n| Asset / Resource | Tag | Custodian | End Time | Status |\n| :--- | :--- | :--- | :--- | :---: |\n` +
-            activeBookings.map((b) => `| ${b.asset.name} | **${b.asset.tag}** | ${b.user.name} | ${new Date(b.endDate).toLocaleDateString()} | \`OVERDUE\` |`).join("\n");
+            activeBookings.map((b: any) => `| ${b.asset.name} | **${b.asset.tag}** | ${b.user.name} | ${new Date(b.endDate).toLocaleDateString()} | \`OVERDUE\` |`).join("\n");
         }
         break;
       }
@@ -220,7 +220,7 @@ Do not include any other markdown wrapper or comments. Just the raw JSON string.
           markdownResponse = "No maintenance tickets are currently pending approval.";
         } else {
           markdownResponse = `### Pending Maintenance Approvals\n\n| Asset | Tag | Reporter | Priority | Date Logged |\n| :--- | :--- | :--- | :--- | :--- |\n` +
-            tickets.map((t) => `| ${t.asset.name} | **${t.asset.tag}** | ${t.reporter.name} | **${t.priority}** | ${new Date(t.createdAt).toLocaleDateString()} |`).join("\n");
+            tickets.map((t: any) => `| ${t.asset.name} | **${t.asset.tag}** | ${t.reporter.name} | **${t.priority}** | ${new Date(t.createdAt).toLocaleDateString()} |`).join("\n");
         }
         break;
       }
@@ -237,7 +237,7 @@ Do not include any other markdown wrapper or comments. Just the raw JSON string.
           markdownResponse = "All assets are currently in use; no idle assets available.";
         } else {
           markdownResponse = `### Idle / Available Assets (Showing top 10)\n\n| Asset Name | Tag | Category | Location | Cost |\n| :--- | :--- | :--- | :--- | :--- |\n` +
-            assets.map((a) => `| ${a.name} | **${a.tag}** | ${a.category.name} | ${a.location} | ₹${a.cost.toLocaleString()} |`).join("\n");
+            assets.map((a: any) => `| ${a.name} | **${a.tag}** | ${a.category.name} | ${a.location} | ₹${a.cost.toLocaleString()} |`).join("\n");
         }
         break;
       }
@@ -256,7 +256,7 @@ Do not include any other markdown wrapper or comments. Just the raw JSON string.
           markdownResponse = "No assets are currently allocated to any employees.";
         } else {
           // Sort to find max
-          const sorted = allocations.sort((a, b) => b._count.id - a._count.id);
+          const sorted = allocations.sort((a: any, b: any) => b._count.id - a._count.id);
           const topAlloc = sorted[0];
 
           if (topAlloc.currentUserId) {
@@ -297,7 +297,7 @@ Do not include any other markdown wrapper or comments. Just the raw JSON string.
           markdownResponse = "No resource bookings scheduled for today.";
         } else {
           markdownResponse = `### Today's Resource Reservations (${bookings.length} active)\n\n| Purpose | Resource | Booked By | Timings |\n| :--- | :--- | :--- | :--- |\n` +
-            bookings.map((b) => `| ${b.purpose} | ${b.asset.name} | ${b.user.name} | ${new Date(b.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(b.endDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} |`).join("\n");
+            bookings.map((b: any) => `| ${b.purpose} | ${b.asset.name} | ${b.user.name} | ${new Date(b.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(b.endDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} |`).join("\n");
         }
         break;
       }
