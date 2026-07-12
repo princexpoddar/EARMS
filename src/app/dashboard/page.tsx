@@ -13,8 +13,11 @@ import {
   ExternalLink,
   ChevronRight,
   TrendingUp,
+  Sparkles,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
+import { MarkdownRenderer } from "@/components/AiCopilot";
 import {
   ResponsiveContainer,
   PieChart,
@@ -98,6 +101,27 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // AI Summary States
+  const [summary, setSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [summaryTime, setSummaryTime] = useState<string | null>(null);
+
+  const loadSummary = async () => {
+    setSummaryLoading(true);
+    try {
+      const res = await fetch("/api/ai/summary");
+      if (res.ok) {
+        const data = await res.json();
+        setSummary(data.summary);
+        setSummaryTime(data.timestamp);
+      }
+    } catch (e) {
+      console.error("Failed to load AI summary briefing:", e);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
   useEffect(() => {
     async function loadStats() {
       try {
@@ -113,6 +137,7 @@ export default function DashboardPage() {
       }
     }
     loadStats();
+    loadSummary();
   }, []);
 
   if (loading || !stats) {
@@ -213,6 +238,57 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* AI Summary Card */}
+      <div className="bg-card/70 border border-border rounded-2xl p-6 shadow-md backdrop-blur-md relative overflow-hidden animate-fade-in print:hidden">
+        {/* Background glow decorator */}
+        <div className="absolute -top-24 -left-24 h-48 w-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+        
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/60">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+              <Sparkles className="h-4.5 w-4.5 animate-pulse" />
+            </div>
+            <div>
+              <h2 className="font-bold text-sm tracking-tight text-foreground">AI Operational Summary</h2>
+              <span className="text-[10px] text-muted-foreground font-medium">Real-time heuristics analysis</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {summaryTime && (
+              <span className="text-[9px] text-muted-foreground font-semibold">
+                Generated {new Date(summaryTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            <button
+              onClick={() => loadSummary()}
+              disabled={summaryLoading}
+              className="p-1.5 hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-50 transition cursor-pointer"
+              title="Refresh Briefing"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${summaryLoading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
+        </div>
+
+        {summaryLoading ? (
+          <div className="space-y-3 py-2">
+            <div className="h-4 w-1/3 bg-muted rounded animate-pulse" />
+            <div className="h-3 w-3/4 bg-muted rounded animate-pulse" />
+            <div className="h-3 w-2/3 bg-muted rounded animate-pulse" />
+            <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
+          </div>
+        ) : summary ? (
+          <div className="prose dark:prose-invert max-w-none text-xs text-muted-foreground">
+            <MarkdownRenderer text={summary} />
+          </div>
+        ) : (
+          <div className="py-2 text-center text-xs text-muted-foreground italic">
+            Failed to generate AI operational summary.
+          </div>
+        )}
+      </div>
+
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpiCards.map((kpi) => {
@@ -305,7 +381,7 @@ export default function DashboardPage() {
             </span>
             <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded-full">
               <TrendingUp className="h-3.5 w-3.5" />
-              <span>Cost Trends (USD)</span>
+              <span>Cost Trends (INR)</span>
             </div>
           </div>
           <div className="h-64">

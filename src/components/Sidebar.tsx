@@ -17,6 +17,7 @@ import {
   X,
   Shield,
   Layers,
+  QrCode,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -57,6 +58,12 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
       name: "Maintenance Hub",
       href: "/maintenance",
       icon: Wrench,
+      roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
+    },
+    {
+      name: "QR Scanner",
+      href: "/scan",
+      icon: QrCode,
       roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
     },
     {

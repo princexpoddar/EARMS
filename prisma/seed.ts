@@ -37,7 +37,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       email: "admin@assetflow.com",
-      name: "Sarah Jenkins (Admin)",
+      name: "Priya Sharma (Admin)",
       role: "ADMIN",
       passwordHash: adminPassword,
       departmentId: operations.id,
@@ -47,7 +47,7 @@ async function main() {
   const manager = await prisma.user.create({
     data: {
       email: "manager@assetflow.com",
-      name: "Marcus Vance (Manager)",
+      name: "Rajesh Kumar (Manager)",
       role: "MANAGER",
       passwordHash: managerPassword,
       departmentId: engineering.id,
@@ -57,7 +57,7 @@ async function main() {
   const employee1 = await prisma.user.create({
     data: {
       email: "employee@assetflow.com",
-      name: "Alex Rivera",
+      name: "Amit Patel",
       role: "EMPLOYEE",
       passwordHash: employeePassword,
       departmentId: engineering.id,
@@ -67,7 +67,7 @@ async function main() {
   const employee2 = await prisma.user.create({
     data: {
       email: "designer@assetflow.com",
-      name: "Elena Rostova",
+      name: "Sneha Reddy",
       role: "EMPLOYEE",
       passwordHash: employeePassword,
       departmentId: design.id,
@@ -254,7 +254,7 @@ async function main() {
       status: "APPROVED",
       cost: 200.00,
       scheduledDate: new Date("2026-07-14"),
-      comments: "Approved by Marcus Vance. Battery ordered.",
+      comments: "Approved by Rajesh Kumar. Battery ordered.",
     },
   });
 
@@ -332,7 +332,7 @@ async function main() {
     data: {
       userId: admin.id,
       title: "New Transfer Request",
-      message: "Marcus requested to transfer Dell XPS 15 (AST-0002) to HR department.",
+      message: "Rajesh requested to transfer Dell XPS 15 (AST-0002) to HR department.",
       type: "INFO",
       read: false,
     },
@@ -360,19 +360,19 @@ async function main() {
 
   console.log("Seeding activity logs...");
   await prisma.activityLog.create({
-    data: { userId: admin.id, action: "USER_LOGIN", details: "Sarah Jenkins logged in from 192.168.1.15" },
+    data: { userId: admin.id, action: "USER_LOGIN", details: "Priya Sharma logged in from 192.168.1.15" },
   });
   await prisma.activityLog.create({
     data: { userId: admin.id, action: "ASSET_CREATE", details: "Created asset MacBook Pro 16\" (AST-0001)" },
   });
   await prisma.activityLog.create({
-    data: { userId: admin.id, action: "ASSET_ALLOCATE", details: "Allocated MacBook Pro 16\" (AST-0001) to Alex Rivera" },
+    data: { userId: admin.id, action: "ASSET_ALLOCATE", details: "Allocated MacBook Pro 16\" (AST-0001) to Amit Patel" },
   });
   await prisma.activityLog.create({
-    data: { userId: employee2.id, action: "MAINTENANCE_REQUEST", details: "Elena Rostova requested maintenance for iPad Pro (AST-0004)" },
+    data: { userId: employee2.id, action: "MAINTENANCE_REQUEST", details: "Sneha Reddy requested maintenance for iPad Pro (AST-0004)" },
   });
   await prisma.activityLog.create({
-    data: { userId: manager.id, action: "MAINTENANCE_APPROVE", details: "Marcus Vance approved maintenance for iPad Pro (AST-0004)" },
+    data: { userId: manager.id, action: "MAINTENANCE_APPROVE", details: "Rajesh Kumar approved maintenance for iPad Pro (AST-0004)" },
   });
 
   console.log("Seeding finished successfully!");

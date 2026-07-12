@@ -234,7 +234,7 @@ export default function ReportsPage() {
         {/* Maintenance Trend */}
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4 block">
-            Monthly Maintenance Upkeep Trend (USD)
+            Monthly Maintenance Upkeep Trend (INR)
           </span>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">

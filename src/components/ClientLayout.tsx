@@ -2,9 +2,12 @@
 
 import React, { useState } from "react";
 import { AppProvider, useApp } from "@/context/AppContext";
+import { DemoProvider } from "@/context/DemoContext";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import CommandPalette from "@/components/CommandPalette";
+import AiCopilot from "@/components/AiCopilot";
+import DemoController from "@/components/DemoController";
 import { usePathname } from "next/navigation";
 import { CheckCircle2, AlertCircle, Info } from "lucide-react";
 
@@ -69,6 +72,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         </main>
       </div>
       <CommandPalette />
+      <AiCopilot />
     </div>
   );
 }
@@ -76,8 +80,11 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppProvider>
-      <LayoutContent>{children}</LayoutContent>
-      <ToastContainer />
+      <DemoProvider>
+        <LayoutContent>{children}</LayoutContent>
+        <ToastContainer />
+        <DemoController />
+      </DemoProvider>
     </AppProvider>
   );
 }

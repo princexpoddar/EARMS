@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import { useDemo } from "@/context/DemoContext";
 import {
   Menu,
   Sun,
@@ -12,6 +13,7 @@ import {
   CheckCheck,
   Circle,
   HelpCircle,
+  Play,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -30,6 +32,8 @@ export default function Topbar({ setMobileOpen }: TopbarProps) {
     markAllAsRead,
     setCommandPaletteOpen,
   } = useApp();
+
+  const { isDemoActive, startDemo } = useDemo();
 
   const [notifOpen, setNotifOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -93,6 +97,17 @@ export default function Topbar({ setMobileOpen }: TopbarProps) {
 
       {/* Right side: Search, Theme, Notifications */}
       <div className="flex items-center gap-3">
+        {/* Run Demo Button */}
+        {!isDemoActive && (
+          <button
+            onClick={startDemo}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition animate-pulse shrink-0 cursor-pointer animate-duration-1000"
+          >
+            <Play className="h-3.5 w-3.5 fill-white" />
+            <span className="hidden sm:inline">Run Demo</span>
+          </button>
+        )}
+
         {/* Command Palette Trigger Button */}
         <button
           onClick={() => setCommandPaletteOpen(true)}

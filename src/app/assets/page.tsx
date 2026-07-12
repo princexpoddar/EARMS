@@ -10,7 +10,7 @@ import {
   QrCode,
   SlidersHorizontal,
   Calendar,
-  DollarSign,
+  IndianRupee,
   MapPin,
   Tag,
   Wrench,
@@ -361,7 +361,7 @@ export default function AssetsPage() {
                     {asset.location}
                   </td>
                   <td className="p-4 font-medium text-foreground">
-                    {asset.cost > 0 ? `$${asset.cost.toLocaleString()}` : "—"}
+                    {asset.cost > 0 ? `₹${asset.cost.toLocaleString()}` : "—"}
                   </td>
                   <td className="p-4">
                     <span
@@ -452,10 +452,10 @@ export default function AssetsPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-muted-foreground font-medium w-24 shrink-0">Cost (USD):</span>
+                  <IndianRupee className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground font-medium w-24 shrink-0">Cost (INR):</span>
                   <span className="text-foreground font-semibold">
-                    {selectedAsset.cost > 0 ? `$${selectedAsset.cost.toLocaleString()}` : "N/A"}
+                    {selectedAsset.cost > 0 ? `₹${selectedAsset.cost.toLocaleString()}` : "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -639,7 +639,7 @@ export default function AssetsPage() {
 
                 {/* Cost */}
                 <div className="space-y-1">
-                  <label className="font-semibold text-muted-foreground">Cost (USD)</label>
+                  <label className="font-semibold text-muted-foreground">Cost (INR)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -769,7 +769,7 @@ export default function AssetsPage() {
 
                 {/* Cost */}
                 <div className="space-y-1">
-                  <label className="font-semibold text-muted-foreground">Cost (USD)</label>
+                  <label className="font-semibold text-muted-foreground">Cost (INR)</label>
                   <input
                     type="number"
                     step="0.01"

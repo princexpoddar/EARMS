@@ -15,7 +15,7 @@ import {
   ChevronRight,
   User,
   Calendar,
-  DollarSign,
+  IndianRupee,
 } from "lucide-react";
 
 interface Ticket {
@@ -366,7 +366,7 @@ export default function MaintenancePage() {
                           )}
                           {t.cost > 0 && (
                             <div className="flex items-center gap-1.5">
-                              <DollarSign className="h-3 w-3 text-emerald-500 shrink-0" />
+                              <IndianRupee className="h-3 w-3 text-emerald-500 shrink-0" />
                               <span className="font-bold text-foreground">
                                 Cost: ${t.cost.toLocaleString()}
                               </span>
@@ -516,7 +516,7 @@ export default function MaintenancePage() {
 
               {/* Estimate Cost */}
               <div className="space-y-1">
-                <label className="font-semibold text-muted-foreground">Estimated Cost (USD, optional)</label>
+                <label className="font-semibold text-muted-foreground">Estimated Cost (INR, optional)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -563,7 +563,7 @@ export default function MaintenancePage() {
             <form onSubmit={handleResolveSubmit} className="space-y-4 text-xs">
               {/* Final Cost */}
               <div className="space-y-1">
-                <label className="font-semibold text-muted-foreground">Final Resolution Cost (USD) *</label>
+                <label className="font-semibold text-muted-foreground">Final Resolution Cost (INR) *</label>
                 <input
                   type="number"
                   step="0.01"
