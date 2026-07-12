@@ -132,36 +132,46 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
         })}
       </div>
 
-      {/* Profile/Logout Area */}
-      {user && (
-        <div className="border-t border-border p-4 bg-muted/20">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary border border-border">
-              {user.role === "ADMIN" ? (
-                <Shield className="h-5 w-5 text-primary" />
-              ) : (
-                <Layers className="h-5 w-5 text-primary" />
-              )}
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-semibold truncate leading-tight text-foreground">
-                {user.name}
-              </span>
-              <span className="text-[10px] text-muted-foreground truncate uppercase font-bold tracking-wider mt-0.5">
-                {user.role} {user.department ? `· ${user.department.name}` : ""}
-              </span>
-            </div>
-          </div>
 
-          <button
-            onClick={() => logout()}
-            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors duration-200"
-          >
-            <LogOut className="h-4.5 w-4.5" />
-            <span>Sign Out</span>
-          </button>
-        </div>
-      )}
+      {/* Profile / Logout — always visible */}
+      <div className="border-t border-border p-4 bg-muted/20 shrink-0">
+        {user ? (
+          <>
+            <div className="flex items-center gap-3 mb-3 px-1">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-border text-primary font-extrabold text-sm select-none">
+                {user.name?.charAt(0).toUpperCase() ?? "?"}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-semibold truncate leading-tight text-foreground">
+                  {user.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate uppercase font-bold tracking-wider mt-0.5">
+                  {user.role}{user.department ? ` · ${user.department.name}` : ""}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => logout()}
+              className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors duration-200 cursor-pointer"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span>Sign Out</span>
+            </button>
+          </>
+        ) : (
+          // Skeleton while user loads
+          <div className="space-y-2 animate-pulse px-1">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted shrink-0" />
+              <div className="space-y-1.5 flex-1">
+                <div className="h-3 w-24 rounded bg-muted" />
+                <div className="h-2 w-16 rounded bg-muted" />
+              </div>
+            </div>
+            <div className="h-9 w-full rounded-lg bg-muted mt-2" />
+          </div>
+        )}
+      </div>
     </div>
   );
 
