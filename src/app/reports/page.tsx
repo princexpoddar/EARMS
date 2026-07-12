@@ -72,156 +72,404 @@ export default function ReportsPage() {
         format: "a4",
       });
 
-      // Colors
-      const primaryColor = [20, 20, 23]; // Charcoal Dark
-      const secondaryColor = [79, 70, 229]; // Indigo
-      const lightBg = [244, 244, 245]; // Muted Soft Gray
-      const borderStroke = [228, 228, 231]; // Gray 200
+      // Branding / Logo draw helper
+      const drawPdfLogo = (pdfDoc: any, x: number, y: number) => {
+        // Outer Hexagonal flow ring
+        pdfDoc.setDrawColor(16, 185, 129); // Emerald accent
+        pdfDoc.setLineWidth(0.4);
+        const r = 5.5;
+        const pts = [];
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * Math.PI) / 3;
+          pts.push([x + r * Math.cos(angle), y + r * Math.sin(angle)]);
+        }
+        for (let i = 0; i < 6; i++) {
+          const nextIdx = (i + 1) % 6;
+          pdfDoc.line(pts[i][0], pts[i][1], pts[nextIdx][0], pts[nextIdx][1]);
+        }
 
-      // PAGE 1: COVER HEADER AND OPERATIONS & MAINTENANCE
-      // Header Band
-      doc.setFillColor(20, 20, 23);
-      doc.rect(0, 0, 210, 32, "F");
+        // Isometric core 3D cube (Asset representation)
+        // Top Face (Indigo)
+        pdfDoc.setFillColor(79, 70, 229);
+        pdfDoc.polygon([
+          [x, y - 2.8],
+          [x + 3.8, y - 0.9],
+          [x, y + 1],
+          [x - 3.8, y - 0.9]
+        ], "F");
+        
+        // Left Face (Darker Indigo)
+        pdfDoc.setFillColor(55, 48, 163);
+        pdfDoc.polygon([
+          [x - 3.8, y - 0.9],
+          [x, y + 1],
+          [x, y + 4.8],
+          [x - 3.8, y + 2.9]
+        ], "F");
 
-      // Title
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(18);
-      doc.text("WEEKLY OPERATIONAL SUMMARY", 12, 14);
+        // Right Face (Teal/Emerald)
+        pdfDoc.setFillColor(16, 185, 129);
+        pdfDoc.polygon([
+          [x, y + 1],
+          [x + 3.8, y - 0.9],
+          [x + 3.8, y + 2.9],
+          [x, y + 4.8]
+        ], "F");
 
-      // Subtitle
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(156, 163, 175);
-      doc.text("SYSTEM INTELLIGENCE BRIEFING & STRATEGIC RECOMMENDATIONS", 12, 21);
-
-      // Generated timestamp
-      const genDate = new Date(reportRes.generatedAt).toLocaleString();
-      doc.setFontSize(7.5);
-      doc.text(`Generated: ${genDate}`, 12, 27);
-      doc.text(`Fleet Compliance: 100% (Optimal)`, 150, 27);
-
-      let yPos = 42;
-
-      // Render Helper Function
-      const addSection = (title: string, statsList: string[], body: string) => {
-        // Section Header
-        doc.setFillColor(244, 244, 245);
-        doc.rect(12, yPos, 186, 7.5, "F");
-
-        doc.setTextColor(79, 70, 229); // Indigo Accent
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(9.5);
-        doc.text(title.toUpperCase(), 15, yPos + 5);
-        yPos += 12;
-
-        // Statistics List
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(63, 63, 70);
-        statsList.forEach((stat) => {
-          doc.text(`• ${stat}`, 16, yPos);
-          yPos += 4.2;
-        });
-        yPos += 2.5;
-
-        // AI Summary Header
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(8);
-        doc.setTextColor(20, 20, 23);
-        doc.text("AI Operational Diagnostics summary:", 16, yPos);
-        yPos += 4.5;
-
-        // AI Summary Paragraph
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(82, 82, 91);
-        const splitParagraph = doc.splitTextToSize(body, 178);
-        doc.text(splitParagraph, 16, yPos);
-        yPos += (splitParagraph.length * 4) + 8;
+        // Overlay Ribbon Accent (White)
+        pdfDoc.setDrawColor(255, 255, 255);
+        pdfDoc.setLineWidth(0.5);
+        pdfDoc.line(x - 2.8, y + 1.3, x, y + 2.8);
+        pdfDoc.line(x, y + 2.8, x + 2.8, y + 1.3);
       };
 
-      // 1. Operations & Fleet summary
-      const topDept = stats.departmentBreakdown?.sort((a: any, b: any) => b.count - a.count)[0]?.name || "Operations";
-      addSection("1. Operations & General Fleet Efficiency", [
-        `System Fleet hardware utilization score: ${stats.utilizationRate}% overall`,
-        `Personnel deployment rate: ${stats.allocatedCount} / ${stats.totalAssets} items active`,
-        `Top deployment density node: ${topDept} department`
-      ], report.operations);
-
-      // 2. Maintenance Analysis
-      addSection("2. Maintenance Pipeline & Quality Assurance Logs", [
-        `Pending maintenance queue count: ${stats.pendingMaintenance} issues awaiting scheduling`,
-        `Resolved repair tasks: ${stats.resolvedMaintenance} tickets completed`,
-        `Cumulative repair upkeep cost: INR ${stats.totalMaintenanceCost.toLocaleString()}`
-      ], report.maintenance);
-
-      // Page break for Next sections
-      doc.addPage();
-      
-      // Header Band for page 2
-      doc.setFillColor(20, 20, 23);
-      doc.rect(0, 0, 210, 16, "F");
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("ASSETFLOW ENTERPRISE ERP • OPERATIONAL BRIEFING", 12, 10.5);
-
-      yPos = 28;
-
-      // 3. Shared Resource Reservation Schedules
-      addSection("3. Shared Resources & Reservation Utilization", [
-        `Active reservation events logged: ${stats.totalBookings} scheduling events`,
-        `Approved/Upcoming bookings: ${stats.approvedBookings} bookings blocks`,
-        `Booking overlaps conflicts prevented: 100% collision-free scheduler`
-      ], report.bookings);
-
-      // 4. Physical Depot Inventory Health
-      addSection("4. Depot Inventory & Physical Asset Catalog Registry", [
-        `Available storage inventory: ${stats.availableCount} hardware units ready for deployment`,
-        `Hardware items offline: ${stats.maintenanceCount} units in repairs status`,
-        `Equipment retired/decommissioned: ${stats.retiredCount} logs`
-      ], report.assets);
-
-      // 5. Strategic Recommendations
-      // Header
-      doc.setFillColor(20, 20, 23);
-      doc.rect(12, yPos, 186, 7.5, "F");
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9.5);
-      doc.text("5. SYSTEM ACTIONS & EXECUTIVE STRATEGIC RECOMMENDATIONS", 15, yPos + 5);
-      yPos += 12;
-
-      // Render recommendations inside highlighted box
-      doc.setFillColor(250, 250, 250);
-      doc.setDrawColor(228, 228, 231);
-      doc.setLineWidth(0.3);
-      doc.rect(12, yPos, 186, 42, "FD");
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(39, 39, 42);
-      
-      let recY = yPos + 6;
-      report.recommendations.forEach((rec: string, index: number) => {
-        const splitRec = doc.splitTextToSize(`${index + 1}. ${rec}`, 174);
-        doc.text(splitRec, 18, recY);
-        recY += (splitRec.length * 4) + 2.5;
+      const genDate = new Date(reportRes.generatedAt).toLocaleDateString([], {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
       });
 
-      // Footer
-      doc.setDrawColor(228, 228, 231);
-      doc.setLineWidth(0.2);
-      doc.line(12, 280, 198, 280);
+      // ==========================================
+      // PAGE 1: HEADER & OPERATIONS & MAINTENANCE
+      // ==========================================
 
-      doc.setTextColor(161, 161, 170);
+      // Main Header (Left Side)
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.setTextColor(15, 23, 42); // slate-900
+      doc.text("WEEKLY OPERATIONAL REPORT", 15, 20);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(79, 70, 229); // Indigo
+      doc.text("ASSETFLOW ENTERPRISE ERP • SYSTEM INTELLIGENCE BRIEFING", 15, 25);
+
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(6);
-      doc.text("ASSETFLOW ENTERPRISE ERP • INTERNAL CONFIDENTIAL REPORT • DO NOT DISTRIBUTE OUTSIDE ORG", 12, 284);
-      doc.text("Generated by AssetFlow AI Engine", 168, 284);
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139); // slate-500
+      doc.text(`Security: INTERNAL CONFIDENTIAL  |  Generated: ${genDate}`, 15, 29);
+
+      // Brand Logo (Right Side)
+      drawPdfLogo(doc, 183, 18);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text("AssetFlow", 173, 29);
+
+      // Top Border Line
+      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.setLineWidth(0.3);
+      doc.line(15, 33, 195, 33);
+
+      // KPI Scorecard Grid (Y: 37 to 74)
+      const cardW = 87;
+      const cardH = 16;
+      
+      const drawKpiCard = (x: number, y: number, label: string, val: string, sub: string, accentColor: number[]) => {
+        // Soft background fill
+        doc.setFillColor(248, 250, 252); // slate-50
+        doc.rect(x, y, cardW, cardH, "F");
+        // Left accent border line
+        doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+        doc.rect(x, y, 1.2, cardH, "F");
+        // Card thin border
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.2);
+        doc.rect(x, y, cardW, cardH, "S");
+
+        // Text Content
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(100, 116, 139); // slate-500
+        doc.text(label.toUpperCase(), x + 4, y + 4.5);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(13);
+        doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+        doc.text(val, x + 4, y + 10.5);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(6.5);
+        doc.setTextColor(148, 163, 184); // slate-400
+        doc.text(sub, x + 4, y + 14);
+      };
+
+      // Draw 2x2 Scorecards
+      drawKpiCard(15, 37, "Fleet Utilization Rate", `${stats.utilizationRate}%`, "Ratio of allocated vs total trackable hardware", [16, 185, 129]);
+      drawKpiCard(108, 37, "Active Deployments", `${stats.allocatedCount} / ${stats.totalAssets} Items`, "Assets currently assigned to corporate custodians", [79, 70, 229]);
+      drawKpiCard(15, 57, "Maintenance Upkeep Costs", `INR ${stats.totalMaintenanceCost.toLocaleString()}`, `${stats.pendingMaintenance} tickets pending, ${stats.resolvedMaintenance} completed`, [245, 158, 11]);
+      drawKpiCard(108, 57, "Shared Space Reservations", `${stats.totalBookings} Events Logged`, "Conflict-free resource bookings registered this week", [15, 23, 42]);
+
+      // Divider Line
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.line(15, 78, 195, 78);
+
+      // Section 1: Fleet Operations & Density Breakdown
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text("1. FLEET OPERATIONS & DENSITY BREAKDOWN", 15, 84);
+
+      // Department Allocation Table
+      doc.setFillColor(241, 245, 249);
+      doc.rect(15, 88, 180, 6, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text("DEPARTMENT NODE", 18, 92);
+      doc.text("ALLOCATED INVENTORY", 108, 92);
+      doc.text("DEPLOYMENT RATIO (%)", 158, 92);
+
+      let deptY = 94;
+      const sortedDepts = [...(stats.departmentBreakdown || [])].sort((a: any, b: any) => b.count - a.count).slice(0, 4);
+      sortedDepts.forEach((dept: any, index: number) => {
+        if (index % 2 === 1) {
+          doc.setFillColor(248, 250, 252);
+          doc.rect(15, deptY, 180, 5.5, "F");
+        }
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(51, 65, 85);
+        doc.text(dept.name, 18, deptY + 4);
+        doc.text(`${dept.count} items`, 108, deptY + 4);
+        doc.text(`${dept.percent}%`, 158, deptY + 4);
+        deptY += 5.5;
+      });
+
+      // AI Summary Operations Box
+      let boxY = deptY + 4;
+      const splitOps = doc.splitTextToSize(report.operations, 170);
+      const boxH = (splitOps.length * 4.2) + 10;
+      
+      doc.setFillColor(240, 244, 255); // Blue-50
+      doc.rect(15, boxY, 180, boxH, "F");
+      doc.setFillColor(79, 70, 229); // Indigo Accent Left Border
+      doc.rect(15, boxY, 1.2, boxH, "F");
+      doc.setDrawColor(219, 234, 254);
+      doc.setLineWidth(0.2);
+      doc.rect(15, boxY, 180, boxH, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text("AI OPERATIONAL DIAGNOSTICS & VELOCITY INSIGHTS:", 19, boxY + 5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(splitOps, 19, boxY + 9.5);
+
+      // Section 2: Maintenance Pipeline
+      let maintSectionY = boxY + boxH + 6;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text("2. MAINTENANCE PIPELINE & LIFECYCLE QA LOGS", 15, maintSectionY);
+
+      // AI Summary Maintenance Box
+      let maintBoxY = maintSectionY + 4;
+      const splitMaint = doc.splitTextToSize(report.maintenance, 170);
+      const maintBoxH = (splitMaint.length * 4.2) + 10;
+
+      doc.setFillColor(254, 243, 199); // Amber-50
+      doc.rect(15, maintBoxY, 180, maintBoxH, "F");
+      doc.setFillColor(245, 158, 11); // Amber Accent Left Border
+      doc.rect(15, maintBoxY, 1.2, maintBoxH, "F");
+      doc.setDrawColor(253, 230, 138);
+      doc.setLineWidth(0.2);
+      doc.rect(15, maintBoxY, 180, maintBoxH, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(217, 119, 6); // Amber dark
+      doc.text("AI FLEET HEALTH & PREVENTATIVE MAINTENANCE ISSUES:", 19, maintBoxY + 5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(splitMaint, 19, maintBoxY + 9.5);
+
+      // Page 1 Footer
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.2);
+      doc.line(15, 280, 195, 280);
+
+      doc.setTextColor(148, 163, 184);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.text("ASSETFLOW ENTERPRISE ERP • INTERNAL CONFIDENTIAL REPORT • DO NOT DISTRIBUTE OUTSIDE ORG", 15, 284);
+      doc.text("Page 1 of 2", 182, 284);
+
+      // ==========================================
+      // PAGE 2: BOOKINGS, DEPOT HEALTH & RECS
+      // ==========================================
+      doc.addPage();
+
+      // Page 2 Header Band
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("ASSETFLOW ENTERPRISE ERP • OPERATIONAL BRIEFING", 15, 15);
+      doc.setFont("helvetica", "normal");
+      doc.text("Page 2 of 2", 182, 15);
+      
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.2);
+      doc.line(15, 18, 195, 18);
+
+      // Section 3: Shared Space Reservations
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text("3. SHARED RESOURCES & SCHEDULING EFFICIENCY", 15, 24);
+
+      // AI Summary Bookings Box
+      let bookBoxY = 28;
+      const splitBook = doc.splitTextToSize(report.bookings, 170);
+      const bookBoxH = (splitBook.length * 4.2) + 10;
+
+      doc.setFillColor(240, 253, 250); // Teal-50
+      doc.rect(15, bookBoxY, 180, bookBoxH, "F");
+      doc.setFillColor(13, 148, 136); // Teal Accent Left Border
+      doc.rect(15, bookBoxY, 1.2, bookBoxH, "F");
+      doc.setDrawColor(204, 251, 241);
+      doc.setLineWidth(0.2);
+      doc.rect(15, bookBoxY, 180, bookBoxH, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(13, 148, 136);
+      doc.text("AI RESERVATION METRICS & CONFLICT ANALYSIS:", 19, bookBoxY + 5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(splitBook, 19, bookBoxY + 9.5);
+
+      // Section 4: Depot Inventory Health
+      let depotSectionY = bookBoxY + bookBoxH + 6;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text("4. DEPOT INVENTORY HEALTH & STATUS CATALOG", 15, depotSectionY);
+
+      // Status progress bars
+      let statusY = depotSectionY + 4;
+      const statusList = [
+        { label: "AVAILABLE IN STORAGE", count: stats.availableCount || 0, color: [16, 185, 129] }, // Emerald
+        { label: "ALLOCATED TO USER", count: stats.allocatedCount || 0, color: [79, 70, 229] }, // Indigo
+        { label: "UNDERGOING REPAIRS", count: stats.maintenanceCount || 0, color: [245, 158, 11] }, // Amber
+        { label: "RETIRED FROM ACTIVE SERVICE", count: stats.retiredCount || 0, color: [239, 68, 68] } // Red
+      ];
+
+      statusList.forEach((st) => {
+        const percent = stats.totalAssets > 0 ? (st.count / stats.totalAssets) : 0;
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(100, 116, 139);
+        doc.text(st.label, 18, statusY + 3);
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`${st.count} units`, 60, statusY + 3);
+
+        // Progress bar background track
+        doc.setFillColor(241, 245, 249);
+        doc.rect(78, statusY + 0.5, 98, 2.8, "F");
+
+        // Progress bar fill
+        doc.setFillColor(st.color[0], st.color[1], st.color[2]);
+        doc.rect(78, statusY + 0.5, percent * 98, 2.8, "F");
+
+        // Percentage text
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(st.color[0], st.color[1], st.color[2]);
+        doc.text(`${Math.round(percent * 100)}%`, 181, statusY + 3);
+
+        statusY += 5.5;
+      });
+
+      // AI Summary Assets Box
+      let assetBoxY = statusY + 3;
+      const splitAssets = doc.splitTextToSize(report.assets, 170);
+      const assetBoxH = (splitAssets.length * 4.2) + 10;
+
+      doc.setFillColor(248, 250, 252); // Slate-50/Gray-50
+      doc.rect(15, assetBoxY, 180, assetBoxH, "F");
+      doc.setFillColor(148, 163, 184); // Slate Accent Left Border
+      doc.rect(15, assetBoxY, 1.2, assetBoxH, "F");
+      doc.setDrawColor(241, 245, 249);
+      doc.setLineWidth(0.2);
+      doc.rect(15, assetBoxY, 180, assetBoxH, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text("AI REGISTRY DIAGNOSTICS & CAPACITY AUDITING:", 19, assetBoxY + 5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(splitAssets, 19, assetBoxY + 9.5);
+
+      // Section 5: Strategic Recommendations
+      let recSectionY = assetBoxY + assetBoxH + 6;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(79, 70, 229);
+      doc.text("5. SYSTEM ACTIONS & EXECUTIVE STRATEGIC RECOMMENDATIONS", 15, recSectionY);
+
+      // Recommendation Card panels
+      let recY = recSectionY + 4;
+      const recColors = [
+        [245, 158, 11], // Amber
+        [79, 70, 229], // Indigo
+        [16, 185, 129]  // Emerald
+      ];
+
+      (report.recommendations || []).slice(0, 3).forEach((rec: string, index: number) => {
+        const color = recColors[index % 3];
+        
+        // Card bg
+        doc.setFillColor(248, 250, 252);
+        doc.rect(15, recY, 180, 16, "F");
+        
+        // Accent border
+        doc.setFillColor(color[0], color[1], color[2]);
+        doc.rect(15, recY, 1.2, 16, "F");
+        
+        // Card box border
+        doc.setDrawColor(241, 245, 249);
+        doc.setLineWidth(0.2);
+        doc.rect(15, recY, 180, 16, "S");
+
+        // Title
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7);
+        doc.setTextColor(color[0], color[1], color[2]);
+        doc.text(`STRATEGIC ITEM #${index + 1}:`, 19, recY + 4.5);
+
+        // Recommendation text
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.2);
+        doc.setTextColor(51, 65, 85);
+        const splitText = doc.splitTextToSize(rec, 171);
+        doc.text(splitText, 19, recY + 9);
+
+        recY += 19;
+      });
+
+      // Page 2 Footer
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.2);
+      doc.line(15, 280, 195, 280);
+
+      doc.setTextColor(148, 163, 184);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.text("ASSETFLOW ENTERPRISE ERP • INTERNAL CONFIDENTIAL REPORT • DO NOT DISTRIBUTE OUTSIDE ORG", 15, 284);
+      doc.text("Page 2 of 2", 182, 284);
 
       // Save PDF
       doc.save(`AssetFlow_Weekly_Operational_Report.pdf`);
