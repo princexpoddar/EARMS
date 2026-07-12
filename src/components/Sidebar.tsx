@@ -81,9 +81,9 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
     },
   ];
 
-  const filteredLinks = links.filter(
-    (link) => user && link.roles.includes(user.role)
-  );
+  const filteredLinks = user
+    ? links.filter((link) => link.roles.includes(user.role))
+    : links; // show all links as fallback while user loads
 
   const sidebarContent = (
     <div className="flex h-full flex-col border-r border-border bg-card text-card-foreground">
@@ -167,22 +167,22 @@ export default function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col z-20">
+      {/* Desktop Sidebar — visible on sm+ screens */}
+      <aside className="hidden sm:fixed sm:inset-y-0 sm:flex sm:w-64 sm:flex-col z-20">
         {sidebarContent}
       </aside>
 
       {/* Mobile Drawer Backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 sm:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar — only shows on xs screens */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 z-50 transform md:hidden transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 w-64 z-50 transform sm:hidden transition-transform duration-300 ease-in-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

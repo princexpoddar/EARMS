@@ -63,28 +63,28 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground animate-fade-in">
-      <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
-      <div className="flex-1 flex flex-col md:pl-64">
-        <Topbar setMobileOpen={setMobileOpen} />
-        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
-          {children}
-        </main>
+    <DemoProvider>
+      <div className="min-h-screen flex flex-col bg-background text-foreground animate-fade-in">
+        <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+        <div className="flex-1 flex flex-col sm:pl-64">
+          <Topbar setMobileOpen={setMobileOpen} />
+          <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
+            {children}
+          </main>
+        </div>
+        <CommandPalette />
+        <AiCopilot />
+        <DemoController />
       </div>
-      <CommandPalette />
-      <AiCopilot />
-    </div>
+    </DemoProvider>
   );
 }
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppProvider>
-      <DemoProvider>
-        <LayoutContent>{children}</LayoutContent>
-        <ToastContainer />
-        <DemoController />
-      </DemoProvider>
+      <LayoutContent>{children}</LayoutContent>
+      <ToastContainer />
     </AppProvider>
   );
 }

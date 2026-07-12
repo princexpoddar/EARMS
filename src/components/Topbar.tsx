@@ -80,7 +80,7 @@ export default function Topbar({ setMobileOpen }: TopbarProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={() => setMobileOpen(true)}
-          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted md:hidden focus:outline-none"
+          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted sm:hidden focus:outline-none"
         >
           <Menu className="h-5 w-5" />
         </button>
