@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
+// Prisma 7: connection URL is managed via prisma.config.ts (datasource.url)
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
