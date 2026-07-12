@@ -120,7 +120,7 @@ Do not include any other markdown wrapper or comments. Just the raw JSON string.
             where: { departmentId: hrDept.id },
             select: { id: true },
           });
-          const hrUserIds = hrUsers.map((u) => u.id);
+          const hrUserIds = hrUsers.map((u: { id: string }) => u.id);
 
           const assets = await prisma.asset.findMany({
             where: {
