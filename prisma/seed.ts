@@ -1,5 +1,13 @@
-import { prisma } from "../src/lib/prisma";
+import { config } from "dotenv";
+config({ path: ".env" });
+
+import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcrypt";
+
+const connectionString = process.env.DATABASE_URL!;
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("Cleaning database...");
@@ -85,10 +93,9 @@ async function main() {
   });
 
   console.log("Seeding assets...");
-  // MacBook Pro 16"
   const mbp = await prisma.asset.create({
     data: {
-      name: "MacBook Pro 16\" (M3 Max, 64GB)",
+      name: 'MacBook Pro 16" (M3 Max, 64GB)',
       tag: "AST-0001",
       categoryId: laptops.id,
       status: "ALLOCATED",
@@ -103,7 +110,6 @@ async function main() {
     },
   });
 
-  // Dell XPS 15
   const dell = await prisma.asset.create({
     data: {
       name: "Dell XPS 15 (i9, 32GB)",
@@ -120,7 +126,6 @@ async function main() {
     },
   });
 
-  // iPhone 15 Pro
   const iphone = await prisma.asset.create({
     data: {
       name: "iPhone 15 Pro Max 512GB",
@@ -138,10 +143,9 @@ async function main() {
     },
   });
 
-  // iPad Pro (Maintenance)
   const ipad = await prisma.asset.create({
     data: {
-      name: "iPad Pro 12.9\" (M2, 256GB)",
+      name: 'iPad Pro 12.9" (M2, 256GB)',
       tag: "AST-0004",
       categoryId: mobile.id,
       status: "MAINTENANCE",
@@ -156,7 +160,6 @@ async function main() {
     },
   });
 
-  // Herman Miller Aeron Chair
   const aeron = await prisma.asset.create({
     data: {
       name: "Herman Miller Aeron Chair (Size B)",
@@ -174,7 +177,6 @@ async function main() {
     },
   });
 
-  // Conference Room (Resource)
   const confRoom = await prisma.asset.create({
     data: {
       name: "Boardroom Alpha (12 Pax, AV Suite)",
@@ -189,7 +191,6 @@ async function main() {
     },
   });
 
-  // Focus Room B (Resource)
   const focusRoom = await prisma.asset.create({
     data: {
       name: "Focus Pod B (1 Person)",
@@ -204,7 +205,6 @@ async function main() {
     },
   });
 
-  // 4K Laser Projector
   const projector = await prisma.asset.create({
     data: {
       name: "Epson 4K Laser Projector Pro",
@@ -225,12 +225,12 @@ async function main() {
     data: {
       assetId: ipad.id,
       reporterId: employee2.id,
-      description: "Screen flicker issues and loose charging port. Needs screen refitting and battery health check.",
+      description: "Screen flicker issues and loose charging port.",
       priority: "HIGH",
       status: "IN_PROGRESS",
       cost: 150.00,
       scheduledDate: new Date("2026-07-10"),
-      comments: "Sent to Apple Authorized Service Provider. Awaiting parts.",
+      comments: "Sent to Apple Authorized Service Provider.",
     },
   });
 
@@ -238,7 +238,7 @@ async function main() {
     data: {
       assetId: mbp.id,
       reporterId: employee1.id,
-      description: "Keyboard has 2 keys sticking ('E' and 'R'). Cleaning scheduled.",
+      description: "Keyboard has 2 keys sticking. Cleaning scheduled.",
       priority: "LOW",
       status: "PENDING",
       cost: 0.00,
@@ -249,21 +249,20 @@ async function main() {
     data: {
       assetId: dell.id,
       reporterId: manager.id,
-      description: "Battery swelling replacement. Battery safety issue.",
+      description: "Battery swelling replacement.",
       priority: "CRITICAL",
       status: "APPROVED",
       cost: 200.00,
       scheduledDate: new Date("2026-07-14"),
-      comments: "Approved by Rajesh Kumar. Battery ordered.",
+      comments: "Battery ordered.",
     },
   });
 
-  console.log("Seeding conference room bookings...");
+  console.log("Seeding bookings...");
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
-  // Past Booking (Completed)
   const pastStart = new Date(today);
   pastStart.setDate(today.getDate() - 2);
   pastStart.setHours(10, 0, 0, 0);
@@ -271,48 +270,16 @@ async function main() {
   pastEnd.setHours(12, 0, 0, 0);
 
   await prisma.booking.create({
-    data: {
-      assetId: confRoom.id,
-      userId: employee2.id,
-      startDate: pastStart,
-      endDate: pastEnd,
-      purpose: "Design Review Session",
-      status: "COMPLETED",
-    },
+    data: { assetId: confRoom.id, userId: employee2.id, startDate: pastStart, endDate: pastEnd, purpose: "Design Review Session", status: "COMPLETED" },
   });
 
-  // Tomorrow Booking (Approved)
   const futStart = new Date(tomorrow);
   futStart.setHours(14, 0, 0, 0);
   const futEnd = new Date(futStart);
   futEnd.setHours(16, 0, 0, 0);
 
   await prisma.booking.create({
-    data: {
-      assetId: confRoom.id,
-      userId: employee1.id,
-      startDate: futStart,
-      endDate: futEnd,
-      purpose: "Sprint Planning",
-      status: "APPROVED",
-    },
-  });
-
-  // Pending Booking
-  const pendStart = new Date(tomorrow);
-  pendStart.setHours(10, 0, 0, 0);
-  const pendEnd = new Date(pendStart);
-  pendEnd.setHours(11, 30, 0, 0);
-
-  await prisma.booking.create({
-    data: {
-      assetId: confRoom.id,
-      userId: employee3.id,
-      startDate: pendStart,
-      endDate: pendEnd,
-      purpose: "HR Onboarding Workshop",
-      status: "PENDING",
-    },
+    data: { assetId: confRoom.id, userId: employee1.id, startDate: futStart, endDate: futEnd, purpose: "Sprint Planning", status: "APPROVED" },
   });
 
   console.log("Seeding transfer requests...");
@@ -323,59 +290,24 @@ async function main() {
       receiverId: employee3.id,
       targetDepartmentId: hr.id,
       status: "PENDING",
-      notes: "Need extra testing laptop for HR portal onboarding validations.",
+      notes: "Need extra testing laptop for HR portal.",
     },
   });
 
   console.log("Seeding notifications...");
   await prisma.notification.create({
-    data: {
-      userId: admin.id,
-      title: "New Transfer Request",
-      message: "Rajesh requested to transfer Dell XPS 15 (AST-0002) to HR department.",
-      type: "INFO",
-      read: false,
-    },
+    data: { userId: admin.id, title: "New Transfer Request", message: "Rajesh requested to transfer Dell XPS 15 to HR.", type: "INFO", read: false },
   });
-
   await prisma.notification.create({
-    data: {
-      userId: employee1.id,
-      title: "Booking Approved",
-      message: "Your booking for Boardroom Alpha on " + tomorrow.toLocaleDateString() + " has been approved.",
-      type: "SUCCESS",
-      read: false,
-    },
-  });
-
-  await prisma.notification.create({
-    data: {
-      userId: employee2.id,
-      title: "Maintenance In Progress",
-      message: "iPad Pro (AST-0004) has been moved to maintenance status.",
-      type: "WARNING",
-      read: true,
-    },
+    data: { userId: employee1.id, title: "Booking Approved", message: "Boardroom Alpha booking approved.", type: "SUCCESS", read: false },
   });
 
   console.log("Seeding activity logs...");
-  await prisma.activityLog.create({
-    data: { userId: admin.id, action: "USER_LOGIN", details: "Priya Sharma logged in from 192.168.1.15" },
-  });
-  await prisma.activityLog.create({
-    data: { userId: admin.id, action: "ASSET_CREATE", details: "Created asset MacBook Pro 16\" (AST-0001)" },
-  });
-  await prisma.activityLog.create({
-    data: { userId: admin.id, action: "ASSET_ALLOCATE", details: "Allocated MacBook Pro 16\" (AST-0001) to Amit Patel" },
-  });
-  await prisma.activityLog.create({
-    data: { userId: employee2.id, action: "MAINTENANCE_REQUEST", details: "Sneha Reddy requested maintenance for iPad Pro (AST-0004)" },
-  });
-  await prisma.activityLog.create({
-    data: { userId: manager.id, action: "MAINTENANCE_APPROVE", details: "Rajesh Kumar approved maintenance for iPad Pro (AST-0004)" },
-  });
+  await prisma.activityLog.create({ data: { userId: admin.id, action: "USER_LOGIN", details: "Priya Sharma logged in" } });
+  await prisma.activityLog.create({ data: { userId: admin.id, action: "ASSET_CREATE", details: "Created MacBook Pro 16\" (AST-0001)" } });
+  await prisma.activityLog.create({ data: { userId: admin.id, action: "ASSET_ALLOCATE", details: "Allocated MacBook Pro 16\" to Amit Patel" } });
 
-  console.log("Seeding finished successfully!");
+  console.log("✅ Seeding finished successfully!");
 }
 
 main()
