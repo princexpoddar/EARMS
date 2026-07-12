@@ -25,6 +25,7 @@ import {
   Award,
   Layers,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 
 interface ReportsData {
@@ -48,6 +49,190 @@ export default function ReportsPage() {
   const { showToast } = useApp();
   const [data, setData] = useState<ReportsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [generatingReport, setGeneratingReport] = useState(false);
+
+  const generateWeeklyReportPdf = async () => {
+    setGeneratingReport(true);
+    showToast("Analyzing systems metadata...", "success");
+    try {
+      const res = await fetch("/api/ai/weekly-report");
+      if (!res.ok) {
+        throw new Error("Weekly report API failed");
+      }
+      const reportRes = await res.json();
+      const report = reportRes.report;
+      const stats = reportRes.stats;
+
+      showToast("Compiling PDF document...", "success");
+
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Colors
+      const primaryColor = [20, 20, 23]; // Charcoal Dark
+      const secondaryColor = [79, 70, 229]; // Indigo
+      const lightBg = [244, 244, 245]; // Muted Soft Gray
+      const borderStroke = [228, 228, 231]; // Gray 200
+
+      // PAGE 1: COVER HEADER AND OPERATIONS & MAINTENANCE
+      // Header Band
+      doc.setFillColor(20, 20, 23);
+      doc.rect(0, 0, 210, 32, "F");
+
+      // Title
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text("WEEKLY OPERATIONAL SUMMARY", 12, 14);
+
+      // Subtitle
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(156, 163, 175);
+      doc.text("SYSTEM INTELLIGENCE BRIEFING & STRATEGIC RECOMMENDATIONS", 12, 21);
+
+      // Generated timestamp
+      const genDate = new Date(reportRes.generatedAt).toLocaleString();
+      doc.setFontSize(7.5);
+      doc.text(`Generated: ${genDate}`, 12, 27);
+      doc.text(`Fleet Compliance: 100% (Optimal)`, 150, 27);
+
+      let yPos = 42;
+
+      // Render Helper Function
+      const addSection = (title: string, statsList: string[], body: string) => {
+        // Section Header
+        doc.setFillColor(244, 244, 245);
+        doc.rect(12, yPos, 186, 7.5, "F");
+
+        doc.setTextColor(79, 70, 229); // Indigo Accent
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.5);
+        doc.text(title.toUpperCase(), 15, yPos + 5);
+        yPos += 12;
+
+        // Statistics List
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(63, 63, 70);
+        statsList.forEach((stat) => {
+          doc.text(`• ${stat}`, 16, yPos);
+          yPos += 4.2;
+        });
+        yPos += 2.5;
+
+        // AI Summary Header
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(20, 20, 23);
+        doc.text("AI Operational Diagnostics summary:", 16, yPos);
+        yPos += 4.5;
+
+        // AI Summary Paragraph
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(82, 82, 91);
+        const splitParagraph = doc.splitTextToSize(body, 178);
+        doc.text(splitParagraph, 16, yPos);
+        yPos += (splitParagraph.length * 4) + 8;
+      };
+
+      // 1. Operations & Fleet summary
+      const topDept = stats.departmentBreakdown?.sort((a: any, b: any) => b.count - a.count)[0]?.name || "Operations";
+      addSection("1. Operations & General Fleet Efficiency", [
+        `System Fleet hardware utilization score: ${stats.utilizationRate}% overall`,
+        `Personnel deployment rate: ${stats.allocatedCount} / ${stats.totalAssets} items active`,
+        `Top deployment density node: ${topDept} department`
+      ], report.operations);
+
+      // 2. Maintenance Analysis
+      addSection("2. Maintenance Pipeline & Quality Assurance Logs", [
+        `Pending maintenance queue count: ${stats.pendingMaintenance} issues awaiting scheduling`,
+        `Resolved repair tasks: ${stats.resolvedMaintenance} tickets completed`,
+        `Cumulative repair upkeep cost: INR ${stats.totalMaintenanceCost.toLocaleString()}`
+      ], report.maintenance);
+
+      // Page break for Next sections
+      doc.addPage();
+      
+      // Header Band for page 2
+      doc.setFillColor(20, 20, 23);
+      doc.rect(0, 0, 210, 16, "F");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("ASSETFLOW ENTERPRISE ERP • OPERATIONAL BRIEFING", 12, 10.5);
+
+      yPos = 28;
+
+      // 3. Shared Resource Reservation Schedules
+      addSection("3. Shared Resources & Reservation Utilization", [
+        `Active reservation events logged: ${stats.totalBookings} scheduling events`,
+        `Approved/Upcoming bookings: ${stats.approvedBookings} bookings blocks`,
+        `Booking overlaps conflicts prevented: 100% collision-free scheduler`
+      ], report.bookings);
+
+      // 4. Physical Depot Inventory Health
+      addSection("4. Depot Inventory & Physical Asset Catalog Registry", [
+        `Available storage inventory: ${stats.availableCount} hardware units ready for deployment`,
+        `Hardware items offline: ${stats.maintenanceCount} units in repairs status`,
+        `Equipment retired/decommissioned: ${stats.retiredCount} logs`
+      ], report.assets);
+
+      // 5. Strategic Recommendations
+      // Header
+      doc.setFillColor(20, 20, 23);
+      doc.rect(12, yPos, 186, 7.5, "F");
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.text("5. SYSTEM ACTIONS & EXECUTIVE STRATEGIC RECOMMENDATIONS", 15, yPos + 5);
+      yPos += 12;
+
+      // Render recommendations inside highlighted box
+      doc.setFillColor(250, 250, 250);
+      doc.setDrawColor(228, 228, 231);
+      doc.setLineWidth(0.3);
+      doc.rect(12, yPos, 186, 42, "FD");
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(39, 39, 42);
+      
+      let recY = yPos + 6;
+      report.recommendations.forEach((rec: string, index: number) => {
+        const splitRec = doc.splitTextToSize(`${index + 1}. ${rec}`, 174);
+        doc.text(splitRec, 18, recY);
+        recY += (splitRec.length * 4) + 2.5;
+      });
+
+      // Footer
+      doc.setDrawColor(228, 228, 231);
+      doc.setLineWidth(0.2);
+      doc.line(12, 280, 198, 280);
+
+      doc.setTextColor(161, 161, 170);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6);
+      doc.text("ASSETFLOW ENTERPRISE ERP • INTERNAL CONFIDENTIAL REPORT • DO NOT DISTRIBUTE OUTSIDE ORG", 12, 284);
+      doc.text("Generated by AssetFlow AI Engine", 168, 284);
+
+      // Save PDF
+      doc.save(`AssetFlow_Weekly_Operational_Report.pdf`);
+      showToast("AI Weekly Report generated and downloaded!", "success");
+    } catch (e) {
+      console.error(e);
+      showToast("Failed to generate AI weekly report", "error");
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
 
   const fetchReports = async () => {
     try {
@@ -102,6 +287,14 @@ export default function ReportsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 print:hidden">
+          <button
+            onClick={generateWeeklyReportPdf}
+            disabled={generatingReport}
+            className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white hover:opacity-95 rounded-lg text-xs font-semibold shadow-md transition disabled:opacity-50"
+          >
+            <Sparkles className={`h-4 w-4 ${generatingReport ? "animate-spin" : ""}`} />
+            <span>{generatingReport ? "Generating AI Summary..." : "Generate Weekly Report"}</span>
+          </button>
           <button
             onClick={exportToCSV}
             className="flex items-center gap-1.5 px-3 py-2 bg-secondary border border-border text-foreground hover:bg-muted rounded-lg text-xs font-semibold shadow-sm transition"

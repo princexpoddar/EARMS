@@ -19,11 +19,13 @@ AssetFlow is a polished, production-ready full-stack Enterprise Resource Plannin
 ### AI & Intelligence Features
 9. **AI Asset Copilot** — A floating chat assistant accessible from every page. Answers natural-language questions using live Prisma queries (e.g. *"Which laptops are in HR?", "Who holds AST-0005?", "Show overdue assets"*). Works without an API key via a built-in regex NLP fallback engine.
 10. **AI Dashboard Summary** — Generates an executive operational briefing with recommended action items directly on the dashboard. Supports manual refresh and shows generation timestamp.
+11. **AI Weekly Reports** — Generates a comprehensive weekly executive summary report containing detailed paragraphs for Operations, Maintenance, Bookings, Assets, and strategic recommendations, formatted into a publication-quality multi-page A4 PDF report with one click.
 
 ### Utility Features
-11. **QR Code Scanner** (`/scan`) — Webcam-based barcode scanner using `html5-qrcode`. Includes a **Judge Simulation Deck** with preset scan buttons for instant demos. Scanning loads a full asset detail card with quick action controls (Return, Allocate, Log Issue).
-12. **Command Palette** — `Ctrl+K` global search overlay for instant navigation to any asset, page, or action.
-13. **Guided Demo Mode** — Press the green **Run Demo** button in the topbar to start a fully automated 11-step walkthrough of every major workflow. Controls include Play/Pause, Skip, Speed (1x/2x), and Restart. Ends with a confetti celebration.
+12. **High-Fidelity PDF Labels** — Generates printable asset tag labels in PDF format (`80mm x 50mm`) with details (Tag ID, Asset Name, Category, Serial, Cost, Purchase Date) and a scan-ready QR code that routes directly back to the check-in view.
+13. **QR Code Scanner** (`/scan`) — Webcam-based barcode scanner using `html5-qrcode`. Includes a **Judge Simulation Deck** with preset scan buttons for instant demos. Scanning loads a full asset detail card with quick action controls (Return, Allocate, Log Issue).
+14. **Command Palette** — `Ctrl+K` global search overlay for instant navigation to any asset, page, or action.
+15. **Guided Demo Mode** — Press the green **Run Demo** button in the topbar to start a fully automated 11-step walkthrough of every major workflow. Controls include Play/Pause, Skip, Speed (1x/2x), and Restart. Ends with a confetti celebration.
 
 ---
 
