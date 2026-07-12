@@ -12,6 +12,7 @@ const PROTECTED_ROUTES = [
   "/maintenance",
   "/reports",
   "/notifications",
+  "/scan",
 ];
 
 // Paths that should not be accessed if logged in

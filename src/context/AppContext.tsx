@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export interface UserSession {
   id: string;
@@ -61,7 +60,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("dark"); // Default dark mode for modern visual impact
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const router = useRouter();
 
   // 1. Fetch current session
   const fetchSession = async () => {
@@ -177,18 +175,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: UserSession) => {
     setUser(userData);
-    router.push("/dashboard");
-    router.refresh();
+    // Hard redirect so middleware sees the newly set auth cookie
+    window.location.href = "/dashboard";
   };
 
   const logout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setUser(null);
-      router.push("/login");
-      router.refresh();
+      // Hard redirect so browser re-runs middleware with cleared cookie
+      window.location.href = "/login";
     } catch (e) {
       console.error("Logout failed:", e);
+      window.location.href = "/login";
     }
   };
 
